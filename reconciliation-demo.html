@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AR Reconciliation Demo</title>
+<style>
+  :root{
+    --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --bg:#ffffff;
+    --ok:#047857; --okbg:#ecfdf5;
+    --warn:#b45309; --warnbg:#fffbeb;
+    --bad:#b91c1c; --badbg:#fef2f2;
+    --accent:#1e3a5f;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:28px 22px 40px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.5;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 20px}
+  .note{
+    font-size:12.5px;color:var(--muted);background:#f9fafb;
+    border-left:3px solid var(--line);padding:10px 12px;margin:0 0 22px;border-radius:0 4px 4px 0;
+  }
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+  button{
+    font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
+    border:1px solid var(--accent);background:var(--accent);color:#fff;
+    padding:9px 16px;border-radius:6px;
+  }
+  button.ghost{background:#fff;color:var(--accent)}
+  button:disabled{opacity:.45;cursor:default}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+  .card{border:1px solid var(--line);border-radius:8px;padding:13px 14px}
+  .card .n{font-size:23px;font-weight:700;letter-spacing:-.02em}
+  .card .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .card.ok .n{color:var(--ok)} .card.warn .n{color:var(--warn)} .card.bad .n{color:var(--bad)}
+  h2{font-size:14px;margin:26px 0 9px;letter-spacing:.02em;text-transform:uppercase;color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--muted);border-bottom:1px solid var(--line);padding:7px 8px;font-weight:600;
+  }
+  td{padding:7px 8px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.flag-missing{background:var(--badbg)}
+  tr.flag-dup{background:var(--warnbg)}
+  tr.flag-amount{background:var(--warnbg)}
+  tr.flag-extra{background:var(--badbg)}
+  .tag{
+    display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;
+    padding:2px 7px;border-radius:99px;white-space:nowrap;
+  }
+  .tag.ok{background:var(--okbg);color:var(--ok)}
+  .tag.bad{background:var(--badbg);color:var(--bad)}
+  .tag.warn{background:var(--warnbg);color:var(--warn)}
+  .why{font-size:12px;color:var(--muted);margin-top:3px}
+  .empty{color:var(--muted);font-size:13px;padding:14px 0}
+  footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+  @media(max-width:620px){ .hide-sm{display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Accounts Receivable Reconciliation &mdash; Working Demo</h1>
+  <p class="sub">Internal ledger vs. partner statement. Sample data, real method.</p>
+
+  <div class="note">
+    This is the process I ran daily for three years across three international agency partners.
+    Two systems, neither of which is obliged to agree with the other. The job is finding every place
+    they don't &mdash; before month-end close, not during it. Figures below are invented for
+    demonstration; no former employer data is used.
+  </div>
+
+  <div class="controls">
+    <button id="run">Run reconciliation</button>
+    <button id="reset" class="ghost" disabled>Reset</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div id="results"></div>
+
+  <footer>
+    Asli Polattas &middot; Accounting &amp; Finance Portfolio &middot; aslipolattas@gmail.com
+  </footer>
+</div>
+
+<script>
+// ---- Sample data: our internal ledger ----
+const internal = [
+  {ref:"INV-4401", date:"2026-03-02", customer:"Agency A", amount:12480.00},
+  {ref:"INV-4402", date:"2026-03-02", customer:"Agency A", amount: 3175.50},
+  {ref:"INV-4403", date:"2026-03-03", customer:"Agency B", amount: 8940.00},
+  {ref:"INV-4404", date:"2026-03-04", customer:"Agency C", amount:22150.75},
+  {ref:"INV-4405", date:"2026-03-05", customer:"Agency A", amount: 6320.00},
+  {ref:"INV-4406", date:"2026-03-05", customer:"Agency B", amount: 1875.25},
+  {ref:"INV-4407", date:"2026-03-06", customer:"Agency C", amount:14600.00},
+  {ref:"INV-4408", date:"2026-03-09", customer:"Agency A", amount: 9310.40},
+  {ref:"INV-4409", date:"2026-03-10", customer:"Agency B", amount: 4725.00},
+  {ref:"INV-4410", date:"2026-03-11", customer:"Agency C", amount:18040.00},
+  {ref:"INV-4411", date:"2026-03-12", customer:"Agency A", amount: 2560.00},
+  {ref:"INV-4412", date:"2026-03-12", customer:"Agency B", amount:11295.60}
+];
+
+// ---- Sample data: what the partner's system says ----
+const partner = [
+  {ref:"INV-4401", date:"2026-03-02", customer:"Agency A", amount:12480.00},
+  {ref:"INV-4402", date:"2026-03-02", customer:"Agency A", amount: 3175.50},
+  {ref:"INV-4403", date:"2026-03-03", customer:"Agency B", amount: 8940.00},
+  {ref:"INV-4404", date:"2026-03-04", customer:"Agency C", amount:21150.75},  // amount mismatch
+  {ref:"INV-4405", date:"2026-03-05", customer:"Agency A", amount: 6320.00},
+  // INV-4406 absent -> missing in partner system
+  {ref:"INV-4407", date:"2026-03-06", customer:"Agency C", amount:14600.00},
+  {ref:"INV-4408", date:"2026-03-09", customer:"Agency A", amount: 9310.40},
+  {ref:"INV-4408", date:"2026-03-09", customer:"Agency A", amount: 9310.40},  // duplicate
+  {ref:"INV-4409", date:"2026-03-10", customer:"Agency B", amount: 4725.00},
+  {ref:"INV-4410", date:"2026-03-11", customer:"Agency C", amount:18040.00},
+  {ref:"INV-4411", date:"2026-03-12", customer:"Agency A", amount: 2560.00},
+  {ref:"INV-4412", date:"2026-03-12", customer:"Agency B", amount:11295.60},
+  {ref:"INV-4499", date:"2026-03-13", customer:"Agency C", amount: 5100.00}   // not in our ledger
+];
+
+const money = n => "$" + n.toLocaleString("en-CA",{minimumFractionDigits:2, maximumFractionDigits:2});
+
+function reconcile(ours, theirs){
+  const findings = [];
+  const seen = {};
+  theirs.forEach(r => { seen[r.ref] = (seen[r.ref]||0) + 1; });
+
+  const theirsFirst = {};
+  theirs.forEach(r => { if(!(r.ref in theirsFirst)) theirsFirst[r.ref] = r; });
+
+  ours.forEach(o => {
+    const t = theirsFirst[o.ref];
+    if(!t){
+      findings.push({type:"missing", ref:o.ref, date:o.date, customer:o.customer,
+        ours:o.amount, theirs:null, impact:o.amount,
+        why:"Invoiced in our ledger but never posted by the partner. Left alone, this is revenue we never collect."});
+      return;
+    }
+    if(Math.abs(t.amount - o.amount) > 0.005){
+      findings.push({type:"amount", ref:o.ref, date:o.date, customer:o.customer,
+        ours:o.amount, theirs:t.amount, impact:o.amount - t.amount,
+        why:"Both systems have the invoice, but not for the same figure. The gap is the amount at risk."});
+      return;
+    }
+    if(seen[o.ref] > 1){
+      findings.push({type:"dup", ref:o.ref, date:o.date, customer:o.customer,
+        ours:o.amount, theirs:t.amount, impact:-o.amount * (seen[o.ref]-1),
+        why:"Posted " + seen[o.ref] + " times on the partner side. Overstates the balance and distorts the close."});
+      return;
+    }
+    findings.push({type:"ok", ref:o.ref, date:o.date, customer:o.customer,
+      ours:o.amount, theirs:t.amount, impact:0, why:""});
+  });
+
+  const ourRefs = new Set(ours.map(r => r.ref));
+  Object.keys(theirsFirst).forEach(ref => {
+    if(!ourRefs.has(ref)){
+      const t = theirsFirst[ref];
+      findings.push({type:"extra", ref:t.ref, date:t.date, customer:t.customer,
+        ours:null, theirs:t.amount, impact:-t.amount,
+        why:"On the partner statement with no matching entry on our side. Either an unrecorded transaction or their error."});
+    }
+  });
+
+  return findings;
+}
+
+const LABEL = {
+  ok:    {text:"Matched",          cls:"ok"},
+  missing:{text:"Missing",         cls:"bad"},
+  amount:{text:"Amount mismatch",  cls:"warn"},
+  dup:   {text:"Duplicate",        cls:"warn"},
+  extra: {text:"Unmatched",        cls:"bad"}
+};
+
+function render(findings){
+  const exceptions = findings.filter(f => f.type !== "ok");
+  const matched = findings.length - exceptions.length;
+  const exposure = exceptions.reduce((s,f) => s + Math.abs(f.impact), 0);
+  const rate = ((exceptions.length / findings.length) * 100).toFixed(1);
+
+  document.getElementById("cards").innerHTML = `
+    <div class="card"><div class="n">${findings.length}</div><div class="l">Lines compared</div></div>
+    <div class="card ok"><div class="n">${matched}</div><div class="l">Matched clean</div></div>
+    <div class="card bad"><div class="n">${exceptions.length}</div><div class="l">Exceptions found</div></div>
+    <div class="card warn"><div class="n">${money(exposure)}</div><div class="l">Value at risk</div></div>
+    <div class="card"><div class="n">${rate}%</div><div class="l">Exception rate</div></div>`;
+
+  const rows = exceptions.map(f => `
+    <tr class="flag-${f.type}">
+      <td><strong>${f.ref}</strong><div class="why">${f.why}</div></td>
+      <td class="hide-sm">${f.customer}</td>
+      <td class="num">${f.ours === null ? "&mdash;" : money(f.ours)}</td>
+      <td class="num">${f.theirs === null ? "&mdash;" : money(f.theirs)}</td>
+      <td class="num">${money(Math.abs(f.impact))}</td>
+      <td><span class="tag ${LABEL[f.type].cls}">${LABEL[f.type].text}</span></td>
+    </tr>`).join("");
+
+  const clean = findings.filter(f => f.type === "ok").map(f => `
+    <tr>
+      <td>${f.ref}</td>
+      <td class="hide-sm">${f.customer}</td>
+      <td class="num">${money(f.ours)}</td>
+      <td class="num">${money(f.theirs)}</td>
+      <td class="num">&mdash;</td>
+      <td><span class="tag ok">Matched</span></td>
+    </tr>`).join("");
+
+  const head = `<thead><tr>
+      <th>Reference</th><th class="hide-sm">Account</th>
+      <th style="text-align:right">Our ledger</th>
+      <th style="text-align:right">Partner</th>
+      <th style="text-align:right">Difference</th>
+      <th>Status</th></tr></thead>`;
+
+  document.getElementById("results").innerHTML = `
+    <h2>Exceptions to investigate</h2>
+    ${exceptions.length ? `<table>${head}<tbody>${rows}</tbody></table>`
+                        : `<div class="empty">No exceptions.</div>`}
+    <h2>Matched lines</h2>
+    <table>${head}<tbody>${clean}</tbody></table>`;
+}
+
+document.getElementById("run").addEventListener("click", () => {
+  render(reconcile(internal, partner));
+  document.getElementById("run").disabled = true;
+  document.getElementById("reset").disabled = false;
+});
+document.getElementById("reset").addEventListener("click", () => {
+  document.getElementById("cards").innerHTML = "";
+  document.getElementById("results").innerHTML = "";
+  document.getElementById("run").disabled = false;
+  document.getElementById("reset").disabled = true;
+});
+</script>
+</body>
+</html>

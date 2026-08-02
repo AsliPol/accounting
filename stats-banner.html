@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>At a Glance</title>
+<style>
+:root{--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--accent:#1e3a5f;--gold:#b45309}
+*{box-sizing:border-box}
+body{margin:0;padding:22px 18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;color:var(--ink);background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;max-width:1000px;margin:0 auto}
+.c{border:1px solid var(--line);border-radius:10px;padding:18px 16px;position:relative;overflow:hidden}
+.c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.c.gold::before{background:var(--gold)}
+.n{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.u{font-size:15px;font-weight:700;color:var(--muted);margin-left:2px}
+.l{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:7px;font-weight:600}
+.d{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.4}
+@media(max-width:640px){.n{font-size:25px}}
+</style></head><body>
+<div class="grid">
+  <div class="c"><div class="n">3<span class="u">+ yrs</span></div><div class="l">Accounts Receivable</div><div class="d">Reporting directly to the CFO</div></div>
+  <div class="c"><div class="n">500K<span class="u">+</span></div><div class="l">Records Reconciled</div><div class="d">Across three partner systems</div></div>
+  <div class="c gold"><div class="n">~90<span class="u">%</span></div><div class="l">Error Detection</div><div class="d">Revenue leakage caught early</div></div>
+  <div class="c"><div class="n">&euro;500<span class="u">M</span></div><div class="l">Company Turnover</div><div class="d">FTI Touristik group</div></div>
+  <div class="c gold"><div class="n">3.90</div><div class="l">Program GPA</div><div class="d">Dean's Honour Roll, Fanshawe</div></div>
+</div>
+</body></html>

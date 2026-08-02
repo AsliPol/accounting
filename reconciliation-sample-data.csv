@@ -1,0 +1,26 @@
+Reference,Date,Account,Currency,Amount,Source
+INV-4401,2026-03-02,Agency A,EUR,12480.00,Internal ledger
+INV-4402,2026-03-02,Agency A,EUR,3175.50,Internal ledger
+INV-4403,2026-03-03,Agency B,EUR,8940.00,Internal ledger
+INV-4404,2026-03-04,Agency C,EUR,22150.75,Internal ledger
+INV-4405,2026-03-05,Agency A,EUR,6320.00,Internal ledger
+INV-4406,2026-03-05,Agency B,EUR,1875.25,Internal ledger
+INV-4407,2026-03-06,Agency C,EUR,14600.00,Internal ledger
+INV-4408,2026-03-09,Agency A,EUR,9310.40,Internal ledger
+INV-4409,2026-03-10,Agency B,EUR,4725.00,Internal ledger
+INV-4410,2026-03-11,Agency C,EUR,18040.00,Internal ledger
+INV-4411,2026-03-12,Agency A,EUR,2560.00,Internal ledger
+INV-4412,2026-03-12,Agency B,EUR,11295.60,Internal ledger
+INV-4401,2026-03-02,Agency A,EUR,12480.00,Partner statement
+INV-4402,2026-03-02,Agency A,EUR,3175.50,Partner statement
+INV-4403,2026-03-03,Agency B,EUR,8940.00,Partner statement
+INV-4404,2026-03-04,Agency C,EUR,21150.75,Partner statement
+INV-4405,2026-03-05,Agency A,EUR,6320.00,Partner statement
+INV-4407,2026-03-06,Agency C,EUR,14600.00,Partner statement
+INV-4408,2026-03-09,Agency A,EUR,9310.40,Partner statement
+INV-4408,2026-03-09,Agency A,EUR,9310.40,Partner statement
+INV-4409,2026-03-10,Agency B,EUR,4725.00,Partner statement
+INV-4410,2026-03-11,Agency C,EUR,18040.00,Partner statement
+INV-4411,2026-03-12,Agency A,EUR,2560.00,Partner statement
+INV-4412,2026-03-12,Agency B,EUR,11295.60,Partner statement
+INV-4499,2026-03-13,Agency C,EUR,5100.00,Partner statement
