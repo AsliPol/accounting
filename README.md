@@ -31,4 +31,4 @@ All figures in these files are invented for demonstration. No former employer da
 
 ## Contact
 
-aslipolattas@gmail.com · [LinkedIn](https://www.linkedin.com/in/asli-p-2364b12b8)
+aslipolattas@gmail.com · [LinkedIn](https://www.linkedin.com/in/aslipolattas)
